@@ -36,7 +36,7 @@ app.post("/progress", asyncHandler(async (req, res) => {
     }
 
     /**
-     * User story #3: Message with Results
+     * User story #1 & #3: Calculate Completion % & Message with Results
      * - Total number of tasks
      * - Number of completed tasks
      * - Percentage completion
