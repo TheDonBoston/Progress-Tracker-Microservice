@@ -35,9 +35,40 @@ app.post("/progress", asyncHandler(async (req, res) => {
         return res.status(400).json(error);
     }
 
-    // If body is valid, calculate and report progress here:
-    res.status(201).json({message: "No Errors are present"}); // This line is temporarily used to show validated input
-}))
+    /**
+     * User story #3: Message with Results
+     * - Total number of tasks
+     * - Number of completed tasks
+     * - Percentage completion
+     * 
+     * It then returns a structured JSON response containing progress
+     * metrics and a summary message of that progress for the user so they
+     * can clearly see their progress.
+     */
+    const items = req.body.items;
+
+    const total = items.length;
+    const completed = items.filter(item => item.completed).length;
+    const percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+    let statusMessage;
+    if (percentage === 100) statusMessage = "You did it! All tasks complete!";
+    else if (percentage >= 75) statusMessage = "Almost there, keep pushing!";
+    else if (percentage >= 50) statusMessage = "Nice, you're over halfway there!";
+    else statusMessage = "Good start. Build momentum!";
+
+    /**
+     * Updated success response to implement User Story #3.
+     * Replaces temporary validation confirmation message
+     * with calculated progress metrics and formatted summary.
+     */
+    return res.status(200).json({
+        completed,
+        total,
+        percentage,
+        message: `You have completed ${completed} of ${total} tasks (${percentage}%). ${statusMessage}`
+    });
+}));
 
 app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`)
