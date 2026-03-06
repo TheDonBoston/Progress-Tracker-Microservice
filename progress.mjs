@@ -28,24 +28,11 @@ function validateInput(body) {
     return null;
 }
 
-app.post("/progress", asyncHandler(async (req, res) => {
-    // Validate request body
-    const error = validateInput(req.body);
-    if (error) {
-        return res.status(400).json(error);
-    }
-
-    /**
-     * User story #1 & #3: Calculate Completion % & Message with Results
-     * - Total number of tasks
-     * - Number of completed tasks
-     * - Percentage completion
-     * 
-     * It then returns a structured JSON response containing progress
-     * metrics and a summary message of that progress for the user so they
-     * can clearly see their progress.
+function calculateProgress(items) {
+    /*
+     * Calculates and returns total number of tasks, number of completed tasks,
+     * percentage completion, and a summary message of that progress.
      */
-    const items = req.body.items;
 
     const total = items.length;
     const completed = items.filter(item => item.completed).length;
@@ -56,6 +43,18 @@ app.post("/progress", asyncHandler(async (req, res) => {
     else if (percentage >= 75) statusMessage = "Almost there, keep pushing!";
     else if (percentage >= 50) statusMessage = "Nice, you're over halfway there!";
     else statusMessage = "Good start. Build momentum!";
+
+    return { completed, total, percentage, statusMessage }
+}
+
+app.post("/progress", asyncHandler(async (req, res) => {
+    // Validate request body
+    const error = validateInput(req.body);
+    if (error) {
+        return res.status(400).json(error);
+    }
+
+    const { completed, total, percentage, statusMessage } = calculateProgress(req.body.items);
 
     /**
      * Updated success response to implement User Story #3.
