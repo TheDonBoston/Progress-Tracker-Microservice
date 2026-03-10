@@ -5,6 +5,10 @@ const PORT = 3002;
 const app = express();
 app.use(express.json())
 
+/**
+ * Ensures 1) that body.items is an array, and 2) that each item object has a name property with
+ * a string value, and 3) each item has a completed property, which must have a boolean value.
+ */
 function validateInput(body) {
     const items = body.items;
 
@@ -28,40 +32,37 @@ function validateInput(body) {
     return null;
 }
 
-app.post("/progress", asyncHandler(async (req, res) => {
-    // Validate request body
-    const error = validateInput(req.body);
-    if (error) {
-        return res.status(400).json(error);
-    }
-
-    /**
-     * User story #1 & #3: Calculate Completion % & Message with Results
-     * - Total number of tasks
-     * - Number of completed tasks
-     * - Percentage completion
-     * 
-     * It then returns a structured JSON response containing progress
-     * metrics and a summary message of that progress for the user so they
-     * can clearly see their progress.
-     */
-    const items = req.body.items;
-
+/**
+ * Returns percent complete rounded to the nearest integer
+ * @param {*} items a list of objects in the form { name: "name", complete: bool }
+ */
+function getPercentComplete(items) {
     const total = items.length;
     const completed = items.filter(item => item.completed).length;
-    const percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
+    return percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
+}
 
+function selectMessage(percent) {
     let statusMessage;
     if (percentage === 100) statusMessage = "You did it! All tasks complete!";
     else if (percentage >= 75) statusMessage = "Almost there, keep pushing!";
     else if (percentage >= 50) statusMessage = "Nice, you're over halfway there!";
     else statusMessage = "Good start. Build momentum!";
+    return statusMessage;
+}
 
-    /**
-     * Updated success response to implement User Story #3.
-     * Replaces temporary validation confirmation message
-     * with calculated progress metrics and formatted summary.
-     */
+/** Given a list of items with completion statuses, returns the percent complete and 
+ *  an appropriate motivational message
+ */
+app.post("/progress", asyncHandler(async (req, res) => {
+    const error = validateInput(req.body);
+    if (error) {
+        return res.status(400).json(error);
+    }
+
+    const percentage = getPercentComplete(req.body.items)
+    const statusMessage = selectMessage(percentage)
+
     return res.status(200).json({
         completed,
         total,
