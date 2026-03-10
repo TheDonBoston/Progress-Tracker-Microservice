@@ -6,8 +6,10 @@ Devs: Isabella Bakker, Gabriel Torres, Spenser Brandt
 
 # How to Request Data
 
--  To request data, a program must send a POST request to the server by using the following link:
+- To request data, a program must send a POST request to the server by using the following link:
            http://localhost:3002/progress
+- The body of the POST request should contain a property called "items," which has an array as its valule. Each item in the array should
+have two properties: "name" and "completed." The value of name should be a string, and the value of "completed" should be a boolean.
 - An example would be by using a .mjs file with the following code:
   
         const response = await fetch("http://localhost:3002/progress", {
